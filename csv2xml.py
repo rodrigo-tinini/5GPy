@@ -5,6 +5,22 @@ import xml.etree.ElementTree as ET
 #import pandas as pd
 import numpy as np
 
+def indent(elem, level=0):
+
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
 def create_base_file(switch_time=0.0001, frame_proc_time=0.0001,
         transmission_time=0.0000001, local_transmission_time=0.0000001,
         cpri_frame_generation_time=0.001, distribution_average=1000,
@@ -107,5 +123,8 @@ def create_base_file(switch_time=0.0001, frame_proc_time=0.0001,
 if __name__ == '__main__':
     config = create_base_file()
     tree = ET.ElementTree(config)
+    root = tree.getroot()
 
-    tree.write('config.xml')
+    indent(root)
+
+    tree.write(sys.argv[1])
