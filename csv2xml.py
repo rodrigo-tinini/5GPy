@@ -2,8 +2,9 @@ import sys
 import random
 import xml.etree.ElementTree as ET
 
-#import pandas as pd
 import numpy as np
+
+import graph
 
 def indent(elem, level=0):
 
@@ -63,59 +64,50 @@ def create_base_file(switch_time=0.0001, frame_proc_time=0.0001,
     sax = ET.SubElement(input_parameters, 'stepAxisX')
     sax.text = f"{step_axis_x}"
 
-    # setup random rrhs
+    network_graph = graph.create_network()
+    rrh_nodes =  [i for i in network_graph.nodes if "RRH" in i]
+    print(rrh_nodes)
+    print(network_graph.nodes[rrh_nodes[0]])
+    print('-----------------------------')
+    switch_nodes =  [i for i in network_graph.nodes if "Switch" in i]
+    cloud_nodes =  [i for i in network_graph.nodes if "Cloud" in i]
+
     rrhs = ET.SubElement(config, 'RRHs')
-    n_rrh = random.randint(2,5)
-    for rrh in range(n_rrh):
-        aId = ET.SubElement(rrhs, 'RRH')
-        aId.set('aId', f"{rrh}")
+
+    for rrh in rrh_nodes:
+        element = ET.SubElement(rrhs, 'RRH')
+
+        for attr in network_graph.nodes[rrh]:
+            element.set(attr, str(network_graph.nodes[rrh][attr]))
 
 
-    # set random network nodes
     # TODO: find out what different values aTypes field can have so it wont be
     # hardcoded like the ones below
-    nns = ET.SubElement(config, 'NetworkNodes')
-    n_nns = random.randint(2,5)
-    for nn in range(n_nns):
-        aId = ET.SubElement(nns, 'Node')
-        aId.set('aId', f"{nn}")
-        aId.set('aType', 'Switch')
-        aId.set('capacity', '10000')
-        aId.set('qos', 'Standard')
+    switches = ET.SubElement(config, 'NetworkNodes')
+    for switch in switch_nodes:
+        element = ET.SubElement(switches, 'Node')
+        for attr in network_graph.nodes[switch]:
+            element.set(attr, str(network_graph.nodes[switch][attr]))
 
 
-    pns = ET.SubElement(config, 'ProcessingNodes')
-    n_pns = random.randint(2,5)
-    for pn in range(n_pns):
-        aId = ET.SubElement(pns, 'Node')
-        aId.set('aId', f"{pn}")
-        aId.set('aType', 'Cloud')
-        aId.set('capacity', '10000')
-        aId.set('qos', 'Standard')
+    clouds = ET.SubElement(config, 'ProcessingNodes')
+    for cloud in cloud_nodes:
+        element = ET.SubElement(clouds, 'Node')
 
+        for attr in network_graph.nodes[cloud]:
+            element.set(attr, str(network_graph.nodes[cloud][attr]))
+
+
+    edges = network_graph.edges.data()
 
     es = ET.SubElement(config, 'Edges')
-    # each rrh must be connected to at least one switch?
-    # switchs could be interconnected, forming a graph
-    # at least one switch should be connected to the cloud
-    for i in range(n_rrh):
-        edge = ET.SubElement(es, 'Edge')
-        edge.set('source', f"RRH:{i}")
-        edge.set('destiny', f"Switch:{random.randint(1,n_nns)}")
-        edge.set('weight', f"{np.round(random.uniform(0, 5),2)}")
+    for edge in edges:
+        element = ET.SubElement(es, 'Edge')
 
-    for i in range(n_nns):
-        edge = ET.SubElement(es, 'Edge')
-        edge.set('source', f"Switch:{i}")
-        edge.set('destiny', f"Switch:{random.randint(1,n_nns)}")
-        edge.set('weight', f"{np.round(random.uniform(0, 5), 2)}")
-
-    # FIXME: here, the switch should have an available path so it can
-    # connect to the cloud
-    edge = ET.SubElement(es, 'Edge')
-    edge.set('source',f"Switch:{np.round(random.randint(1,n_nns),2)}")
-    edge.set('destiny', 'Cloud:0')
-    edge.set('weight', f"{random.uniform(0, 5)}")
+        # `e` is a tuple like (src, dst, {weight: x})
+        element.set('source', edge[0])
+        element.set('destiny', edge[1])
+        element.set('weight', str(edge[2]['weight']))
 
     return config
 
