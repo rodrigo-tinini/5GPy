@@ -66,9 +66,6 @@ def create_base_file(switch_time=0.0001, frame_proc_time=0.0001,
 
     network_graph = graph.create_network()
     rrh_nodes =  [i for i in network_graph.nodes if "RRH" in i]
-    print(rrh_nodes)
-    print(network_graph.nodes[rrh_nodes[0]])
-    print('-----------------------------')
     switch_nodes =  [i for i in network_graph.nodes if "Switch" in i]
     cloud_nodes =  [i for i in network_graph.nodes if "Cloud" in i]
 
