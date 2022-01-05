@@ -6,27 +6,27 @@ Dependencies:
 
 5GPy uses Networkx Python module to implement graphs. Install it using the following command:
 
-pip install networkx
+-pip install networkx
 
 All simulation configurations must be put at:
 
-configurations.xml
+-configurations.xml
 
 The initialization of a simulation is done at:
 
-simulation.py
+-simulation.py
 
 To run a simulation, execute:
 
-python3 simulation.py
+-python3 simulation.py
 
 The classes representing the network topology elements are within:
 
-network.py
+-network.py
 
-Utility methods can be found and must be places at:
+Utility methods can be found and must be placed at:
 
-utiliy.py
+-utiliy.py
 
 Please, when using 5GPy in your paper, thesis or dissertation, it is mandatory to cite the following reference:
 
@@ -39,4 +39,4 @@ year={2019},
 publisher={Elsevier}
 }
 
-If you have any questions, please contact me at: rtinini at ime dot usp dot br
+If you have any questions, please contact me at: tinini at fei dot edu dot br
