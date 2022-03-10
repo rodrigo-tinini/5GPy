@@ -147,3 +147,41 @@ print("-----------------Edges-------------------")
 for i in networkEdges:
 	print(i)
 '''
+
+class Sensor():
+    def __init__(self, env, aId, distribution, cpriFrameGenerationTime, transmissionTime, localTransmissionTime, graph, cpriMode, temperature, soil_moisture,ph):
+        self.temperature = temperature
+        self.soil = soil_moisture
+        self.ph = ph
+        self.env = env
+        self.nextNode = None
+        self.aType = "Sensor"
+        self.aId = "Sensor"+":"+str(aId)
+        self.frames = []
+        self.users = []#list of active UEs served by this RRH
+        self.nodes_connection = []#binary array that keeps the connection fron this RRH to fog nodes and cloud node(s)
+        self.distribution = distribution#the distribution for the traffic generator distribution
+        self.trafficGen = self.env.process(self.run())#initiate the built-in traffic generator
+        #self.genFrame = self.env.process(self.takeFrameUE())
+        self.uplinkTransmitCPRI = self.env.process(self.uplinkTransmitCPRI())#send eCPRI frames to a processing node
+        self.downlinkTransmitUE = self.env.process(self.downlinkTransmitUE())#send frames to the UEs
+        #thsi store receives frames back from the users
+        self.received_users_frames = simpy.Store(self.env)
+        #buffer to transmit to UEs
+        self.currentLoad = 0
+        #this store receives frames back from the processing nodes
+        #self.received_eCPRI_frames = simpy.Store(self.env)
+        self.processingQueue = simpy.Store(self.env)
+        #this store keeps the local processed baseband signals
+        self.local_processing_queue = simpy.Store(self.env)
+        #self.frameProcTime = frameProcTime
+        self.cpriFrameGenerationTime = cpriFrameGenerationTime
+        self.transmissionTime = transmissionTime
+        self.localTransmissionTime = localTransmissionTime
+        self.graph = graph
+        self.cpriMode = cpriMode
+        #limiting coordinates of the base station area
+        self.x1 = 0
+        self.x2 = 0
+        self.y1 = 0
+        self.y2 = 0
